@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela de Desempenho</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: url('background-image.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #clearButton {
+            background-color: #f44336;
+        }
+        #clearButton:hover {
+            background-color: #e53935;
+        }
+        #backButton {
+            background-color: #008CBA;
+        }
+        #backButton:hover {
+            background-color: #007BB5;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Tabela de Desempenho</h1>
+
+<table id="performanceTable">
+    <thead>
+        <tr>
+
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<button onclick="exportTableToCSV('desempenho_alunos.csv')">Exportar para CSV</button>
+<button id="clearButton">Limpar Dados</button>
+<button id="backButton" onclick="location.href='entrada.html'">Voltar</button>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.getElementById('performanceTable');
+        const performanceData = JSON.parse(localStorage.getItem('performanceData')) || [];
+
+        const headers = ["Nome do Aluno", "Data"];
+        const metrics = new Set();
+
+        // Collect all unique metric names
+        performanceData.forEach(rowData => {
+            Object.keys(rowData.metrics).forEach(metric => metrics.add(metric));
+        });
+
+        metrics.forEach(metric => headers.push(metric)); // Add metrics as columns
+
+        const headerRow = document.createElement('tr');
+        headers.forEach(header => {
+            const th = document.createElement('th');
+            th.textContent = header;
+            headerRow.appendChild(th);
+        });
+        table.querySelector('thead').appendChild(headerRow);
+
+        const tbody = table.getElementsByTagName('tbody')[0];
+        performanceData.forEach(rowData => {
+            const newRow = tbody.insertRow();
+            headers.forEach(header => {
+                const cell = newRow.insertCell();
+                if (header === "Nome do Aluno") {
+                    cell.textContent = rowData.name;
+                } else if (header === "Data") {
+                    cell.textContent = rowData.date;
+                } else {
+                    cell.textContent = rowData.metrics[header] || '-';
+                }
+            });
+        });
+    });
+
+    document.getElementById('clearButton').addEventListener('click', function() {
+        localStorage.removeItem('performanceData');
+        location.reload();
+    });
+
+    function exportTableToCSV(filename) {
+        const csv = [];
+        const rows = document.querySelectorAll("table tr");
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = [], cols = rows[i].querySelectorAll("td, th");
+            for (let j = 0; j < cols.length; j++) {
+                row.push(cols[j].innerText);
+            }
+            csv.push(row.join(","));
+        }
+
+        const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+        const downloadLink = document.createElement("a");
+        downloadLink.download = filename;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+</script>
+
+</body>
+</html>

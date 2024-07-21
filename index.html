@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('https://cdn.pixabay.com/photo/2017/02/06/11/20/goal-2042584_1280.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        #loginForm {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loginForm">
+    <h2>Login</h2>
+    <form id="login">
+        <input type="text" id="username" name="username" placeholder="Usuário" required><br>
+        <input type="password" id="password" name="password" placeholder="Senha" required><br>
+        <button type="submit">Entrar</button>
+    </form>
+    <p id="message"></p>
+</div>
+
+<script>
+    document.getElementById('login').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // Hardcoded credentials for demonstration
+        const validUsername = 'admin';
+        const validPassword = '12345';
+
+        if (username === validUsername && password === validPassword) {
+            localStorage.setItem('loggedIn', true);
+            window.location.href = 'entrada.html';
+        } else {
+            document.getElementById('message').textContent = 'Usuário ou senha inválidos';
+        }
+    });
+</script>
+
+</body>
+</html>

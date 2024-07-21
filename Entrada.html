@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrada de Dados</title>
+    
+        <style>
+        
+        body {
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            margin: 20px;
+            background: url('https://cdn.pixabay.com/photo/2017/02/06/11/20/goal-2042584_1280.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        input, select {
+            width: 20%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #viewTableButton {
+            background-color: #008CBA;
+        }
+        #viewTableButton:hover {
+            background-color: #007BB5;
+        }
+        .metric {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .metric input {
+            margin: 5px 0;
+        }
+        .remove-metric {
+            background-color: #f44336;
+        }
+        .remove-metric:hover {
+            background-color: #e53935;
+        }
+    </style>
+</head>
+<body>
+
+
+<form id="performanceForm">
+    <h1>Entrada de Dados</h1>
+
+    <label for="name">Nome do Atleta:</label><br>
+    <input type="text" id="name" name="name" required><br><br>
+
+    <label for="date">Data:</label><br>
+    <input type="date" id="date" name="date" required><br><br>
+
+    <div id="metricsContainer">
+    </div>
+    
+    <button type="button" onclick="addMetric()">Adicionar Métrica</button><br><br>
+    <button type="submit">Adicionar Dados</button>
+</form>
+
+<button id="viewTableButton" onclick="location.href='tabela.html'">Ver Tabela</button>
+
+<script>
+    if (!localStorage.getItem('loggedIn')) {
+        alert("Por favor, faça login primeiro.");
+        window.location.href = 'login.html';
+    }
+
+    const form = document.getElementById('performanceForm');
+    const metricsContainer = document.getElementById('metricsContainer');
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadMetrics();
+    });
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const name = document.getElementById('name').value.trim();
+        const date = document.getElementById('date').value;
+        const metrics = document.querySelectorAll('#metricsContainer .metric');
+
+        if (name === "" || date === "" || metrics.length === 0) {
+            alert("Revise os dados inseridos");
+            return;
+        }
+
+        const metricData = {};
+        metrics.forEach(metric => {
+            const metricName = metric.querySelector('[name="metricName"]').value;
+            const metricValue = metric.querySelector('[name="metricValue"]').value;
+
+            if (metricName === "" || isNaN(metricValue)) {
+                alert("Revise os dados inseridos");
+                return;
+            }
+
+            metricData[metricName] = metricValue;
+        });
+
+        const performanceData = JSON.parse(localStorage.getItem('performanceData')) || [];
+        performanceData.push({ name, date, metrics: metricData });
+        localStorage.setItem('performanceData', JSON.stringify(performanceData));
+
+        alert("Dados inseridos com sucesso");
+        form.reset();
+        loadMetrics(); // Reload the metrics after reset to retain them
+    });
+
+    function addMetric() {
+        const metricDiv = document.createElement('div');
+        metricDiv.className = 'metric';
+        metricDiv.innerHTML = `
+            <input type="text" name="metricName" placeholder="Nome da Métrica" required>
+            <input type="number" name="metricValue" placeholder="Valor da Métrica" step="0.01" required>
+            <button type="button" class="remove-metric" onclick="removeMetric(this)">Remover</button>
+        `;
+        metricsContainer.appendChild(metricDiv);
+        saveMetrics();
+    }
+
+    function removeMetric(button) {
+        const metricDiv = button.parentElement;
+        metricDiv.remove();
+        saveMetrics();
+    }
+
+    function saveMetrics() {
+        const metrics = [];
+        document.querySelectorAll('#metricsContainer .metric').forEach(metric => {
+            const metricName = metric.querySelector('[name="metricName"]').value;
+            const metricValue = metric.querySelector('[name="metricValue"]').value;
+            metrics.push({ metricName, metricValue });
+        });
+        localStorage.setItem('metrics', JSON.stringify(metrics));
+    }
+
+    function loadMetrics() {
+        const savedMetrics = JSON.parse(localStorage.getItem('metrics')) || [];
+        metricsContainer.innerHTML = '';
+        savedMetrics.forEach(metric => {
+            const metricDiv = document.createElement('div');
+            metricDiv.className = 'metric';
+            metricDiv.innerHTML = `
+                <input type="text" name="metricName" value="${metric.metricName}" placeholder="Nome da Métrica" required>
+                <input type="number" name="metricValue" value="${metric.metricValue}" placeholder="Valor da Métrica" step="0.01" required>
+                <button type="button" class="remove-metric" onclick="removeMetric(this)">Remover</button>
+            `;
+            metricsContainer.appendChild(metricDiv);
+        });
+    }
+</script>
+
+</body>
+</html>
