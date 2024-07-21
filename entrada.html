@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entrada de Dados</title>
-    
-        <style>
-        
+    <style>
         body {
             font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
             margin: 20px;
@@ -66,10 +64,9 @@
 </head>
 <body>
 
+<h1>Entrada de Dados</h1>
 
 <form id="performanceForm">
-    <h1>Entrada de Dados</h1>
-
     <label for="name">Nome do Atleta:</label><br>
     <input type="text" id="name" name="name" required><br><br>
 
@@ -111,25 +108,29 @@
         }
 
         const metricData = {};
+        let hasInvalidMetric = false;
+
         metrics.forEach(metric => {
             const metricName = metric.querySelector('[name="metricName"]').value;
             const metricValue = metric.querySelector('[name="metricValue"]').value;
 
             if (metricName === "" || isNaN(metricValue)) {
                 alert("Revise os dados inseridos");
+                hasInvalidMetric = true;
                 return;
             }
 
             metricData[metricName] = metricValue;
         });
 
+        if (hasInvalidMetric) return;
+
         const performanceData = JSON.parse(localStorage.getItem('performanceData')) || [];
         performanceData.push({ name, date, metrics: metricData });
         localStorage.setItem('performanceData', JSON.stringify(performanceData));
 
         alert("Dados inseridos com sucesso");
-        form.reset();
-        loadMetrics(); // Reload the metrics after reset to retain them
+        loadMetrics(); // Reload the metrics to retain them
     });
 
     function addMetric() {
